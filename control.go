@@ -589,17 +589,30 @@ func (c *Control) handleIndication(params *xapp.RMRParams) (err error) {
 			ueMetrics.MeasTimestampPRB.TVsec = 109
 			ueMetrics.MeasTimestampPRB.TVnsec = 110
 			var my_ueid int64 = 1001
-			for k := 0; k < 5; k++ {
+			for k := 0; k < 10; k++ {
 				ueMetrics.ServingCellID = string('A' + k)
 				newUeJsonStr, err := json.Marshal(ueMetrics)
 				err = c.client.Set(strconv.FormatInt(my_ueid, 10), newUeJsonStr, 0).Err()
+				if err != nil {
+					fmt.Printf("!!!EXP Insert Failed!!!\n")
+				}
 				ueMetrics.MeasTimestampPRB.TVsec = ueMetrics.MeasTimestampPRB.TVsec + 1
 				ueMetrics.MeasTimestampPRB.TVnsec = ueMetrics.MeasTimestampPRB.TVnsec + 1
 				my_ueid = my_ueid + 1
-				if err != nil {
-					fmt.Printf("!!!EXP Failed!!!\n")
-				}
+				time.Sleep(2 * time.Second)
 			}
+
+			var my_ueid_ int64 = 1001
+			for k := 0; k < 10; k++ {
+				err = c.client.Del(strconv.FormatInt(my_ueid_, 10)).Err()
+				if err != nil {
+					fmt.Printf("!!!EXP Delete Failed!!!\n")
+				}
+				my_ueid_ = my_ueid_ + 1
+				time.Sleep(2 * time.Second)
+			}
+			fmt.Printf("--------------------Sleep--------------------\n")
+			time.Sleep(10 * time.Second)
 			fmt.Printf("--------------------EXP--------------------\n")
 			//skip
 			if pmContainer.RANContainer != nil {
